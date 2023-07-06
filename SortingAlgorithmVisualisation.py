@@ -5,6 +5,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 import random
 import time
+import math
 
 #Class that deals with the visual elements of the program
 class CreateWindow:
@@ -23,6 +24,7 @@ class CreateWindow:
 
     #takes the current state of the array as an input and draws the rectangles that represent the ints in the array
     def draw_rectangles(self, arr):
+        SHADES_OF_RED = [[0,114,187], [0,119,190], [0,127,191] ]
         RED = 255, 0, 100
         ###################
         PASTEL_RED = 255, 105, 97
@@ -35,13 +37,14 @@ class CreateWindow:
 
         # calculate the width of one rectangle
         rectangle_width = temp_width / len(arr)
-        unit_height = temp_height / max(arr)
+        unit_height = math.floor(temp_height / max(arr))
         
         for i in range(len(arr)):
+            COLOUR = SHADES_OF_RED[i % 3] 
             rectangle_height = unit_height * arr[i]
-            y = self.window.get_height()*0.95 - rectangle_height
-            x = round(self.window.get_width() - 0.9*self.window.get_width() + i*rectangle_width)
-            pygame.draw.rect(self.window, RED, (x, y, rectangle_width, rectangle_height))
+            y = math.floor(self.window.get_height()*0.95 - rectangle_height)
+            x = math.floor(self.window.get_width() - 0.9*self.window.get_width() + i*rectangle_width)
+            pygame.draw.rect(self.window, COLOUR, (x, y, rectangle_width, rectangle_height))
             pygame.display.update()
 
     #displays and updates the text elements 
@@ -115,8 +118,8 @@ class Algorithm:
         random.shuffle(arr)
         return arr
 
-    #bubble sort in ascending order
-    def bubble_sort(self, arr, window):
+    #bubble sort 
+    def bubble_sort(self, arr, window, order):
 
         for i in range(len(arr)):
             swap = False
@@ -130,6 +133,119 @@ class Algorithm:
             if swap == False:
                 break
 
+    #quick sort
+    #function to find the partition position
+    def partition(self, arr, low, high, window, order):
+        #rightmost element = pivot
+        pivot = arr[high]
+
+        i = low - 1
+
+        for j in range(low, high):
+            if arr[j] <= pivot:
+                i = i + 1
+                window.draw_rectangles(arr)
+
+                (arr[i], arr[j]) = (arr[j], arr[i])
+                window.draw_rectangles(arr)
+
+        (arr[i + 1], arr[high]) = (arr[high], arr[i + 1])
+        window.draw_rectangles(arr)
+
+        return i + 1
+
+    #quicksort algorithm
+    def quick_sort(self, arr, low, high, window, order):
+        if low < high:
+
+            #smaller than pivot on left, greater than pivot on right
+            pivot = self.partition(arr, low, high, window, order)
+
+            #left of pivot
+            self.quick_sort(arr, low, pivot - 1, window, order)
+
+            #right of pivot
+            self.quick_sort(arr, pivot + 1, high, window, order)
+
+    #merge sort
+    def merge_sort(self, arr, start, length, window, order):
+        if length > 1:
+            self.merge_sort(arr, start, length//2, window, order)
+            self.merge_sort(arr, start+length//2, length - length//2, window, order)
+        
+        L = arr[start:start+length//2]
+        R = arr[start+length//2:start+length]
+        i = j = k = 0
+
+        while i < len(L) and j < len(R):
+            if L[i] < R[j]:
+                arr[start+k] = L[i]
+                window.draw_rectangles(arr)
+                i += 1
+            else:
+                arr[start+k] = R[j]
+                window.draw_rectangles(arr)
+                j += 1
+            k += 1
+
+        while i < len(L):
+            arr[start+k] = L[i]
+            window.draw_rectangles(arr)
+            i += 1
+            k += 1
+
+        while j < len(R):
+            arr[start+k] = R[j]
+            window.draw_rectangles(arr)
+            j += 1
+            k += 1
+
+        window.draw_rectangles(arr)
+
+    #insertion sort
+    def insertion_sort(self, arr, window, order):
+
+        for i in range(1, len(arr)):
+            key = arr[i]
+            j = i - 1
+              
+            while j >= 0 and key < arr[j]:
+                arr[j + 1] = arr[j]
+                j = j - 1
+                window.draw_rectangles(arr)
+            
+            #move key after element that is bigger than
+            arr[j + 1] = key
+            window.draw_rectangles(arr)
+
+    #heap sort
+    def heapify(self, arr, n, i, window, order):
+      largest = i
+      l = 2 * i + 1
+      r = 2 * i + 2
+  
+      if l < n and arr[i] < arr[l]:
+          largest = l
+  
+      if r < n and arr[largest] < arr[r]:
+          largest = r
+  
+      if largest != i:
+          arr[i], arr[largest] = arr[largest], arr[i]
+          window.draw_rectangles(arr)
+          self.heapify(arr, n, largest, window, order)
+
+    def heap_sort(self, arr, window, order):
+        #build max 
+        for i in range(len(arr)//2, -1, -1):
+            self.heapify(arr, len(arr), i, window, order)
+
+        for i in range(len(arr)-1, 0, -1):
+            arr[i], arr[0] = arr[0], arr[i]
+            window.draw_rectangles(arr)
+
+            #heapify root 
+            self.heapify(arr, i, 0, window, order)
 
 
 #main class (driver)
@@ -162,7 +278,7 @@ def main():
     window.draw_rectangles(arr)
 
     while running:
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(30)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -174,9 +290,42 @@ def main():
                     arr = algorithm.randomise_list(arr)
                     window.draw_rectangles(arr)
 
+                #b - bubble sort
                 if event.key == pygame.K_b:
-                    algorithm.bubble_sort(arr, window)
+                    sort = "Bubble Sort"
                     window.draw_textbox(order, sort)
+                    algorithm.bubble_sort(arr, window, order)
+                    
+                #q - quick sort
+                if event.key == pygame.K_q:
+                    sort = "Quick Sort"
+                    window.draw_textbox(order, sort)
+                    algorithm.quick_sort(arr, 0, len(arr)-1, window, order)
+                    
+
+                #m - merge sort
+                if event.key == pygame.K_m:
+                    sort = "Merge Sort"
+                    window.draw_textbox(order, sort)
+                    algorithm.merge_sort(arr, 0, len(arr), window, order)
+                    
+
+                #i - insertion sort
+                if event.key == pygame.K_i:
+                    sort = "Insertion Sort"
+                    window.draw_textbox(order, sort)
+                    algorithm.insertion_sort(arr, window, order)
+                    
+
+                #h - heap sort
+                if event.key == pygame.K_h:
+                    sort = "Heap Sort"
+                    window.draw_textbox(order, sort)
+                    algorithm.heap_sort(arr, window, order)
+
+                #s - stop sorting
+                if event.key == pygame.K_b:
+                    sorting = None
 
         pygame.display.update()
 
