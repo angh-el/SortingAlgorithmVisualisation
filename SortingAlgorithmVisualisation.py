@@ -124,11 +124,24 @@ class Algorithm:
         for i in range(len(arr)):
             swap = False
             for j in range(0, len(arr) - 1 - i):
-                if arr[j] > arr[j+1]:
-                    swap = True
-                    arr[j], arr[j+1] = arr[j+1], arr[j]
-                    #print(arr)
-                    window.draw_rectangles(arr)
+                if order == "Ascending Order":
+                    if arr[j] > arr[j+1]:
+                        swap = True
+                        arr[j], arr[j+1] = arr[j+1], arr[j]
+                        #print(arr)
+                        window.draw_rectangles(arr)
+
+                elif order == "Descending Order":
+                    if arr[j] < arr[j+1]:
+                        swap = True
+                        arr[j], arr[j+1] = arr[j+1], arr[j]
+                        #print(arr)
+                        window.draw_rectangles(arr)
+
+                else:
+                    return
+                
+                
 
             if swap == False:
                 break
@@ -142,12 +155,26 @@ class Algorithm:
         i = low - 1
 
         for j in range(low, high):
-            if arr[j] <= pivot:
-                i = i + 1
-                window.draw_rectangles(arr)
+            
+            if order == "Ascending Order":
+                if arr[j] <= pivot:
+                    i = i + 1
+                    window.draw_rectangles(arr)
 
-                (arr[i], arr[j]) = (arr[j], arr[i])
-                window.draw_rectangles(arr)
+                    (arr[i], arr[j]) = (arr[j], arr[i])
+                    window.draw_rectangles(arr)
+            
+
+            elif order == "Descending Order":
+                if arr[j] >= pivot:
+                    i = i + 1
+                    window.draw_rectangles(arr)
+
+                    (arr[i], arr[j]) = (arr[j], arr[i])
+                    window.draw_rectangles(arr)
+
+            else:
+                return
 
         (arr[i + 1], arr[high]) = (arr[high], arr[i + 1])
         window.draw_rectangles(arr)
@@ -156,6 +183,10 @@ class Algorithm:
 
     #quicksort algorithm
     def quick_sort(self, arr, low, high, window, order):
+        
+        if order == None:
+            return
+        
         if low < high:
 
             #smaller than pivot on left, greater than pivot on right
@@ -169,6 +200,9 @@ class Algorithm:
 
     #merge sort
     def merge_sort(self, arr, start, length, window, order):
+        if order == None:
+            return
+        
         if length > 1:
             self.merge_sort(arr, start, length//2, window, order)
             self.merge_sort(arr, start+length//2, length - length//2, window, order)
@@ -178,15 +212,37 @@ class Algorithm:
         i = j = k = 0
 
         while i < len(L) and j < len(R):
-            if L[i] < R[j]:
-                arr[start+k] = L[i]
-                window.draw_rectangles(arr)
-                i += 1
-            else:
-                arr[start+k] = R[j]
-                window.draw_rectangles(arr)
-                j += 1
-            k += 1
+            if order == "Ascending Order":
+                if L[i] < R[j]:
+                    arr[start+k] = L[i]
+                    window.draw_rectangles(arr)
+                    i += 1
+                else:
+                    arr[start+k] = R[j]
+                    window.draw_rectangles(arr)
+                    j += 1
+                k += 1
+
+            if order == "Descending Order":
+                if L[i] > R[j]:
+                    arr[start+k] = L[i]
+                    window.draw_rectangles(arr)
+                    i += 1
+                else:
+                    arr[start+k] = R[j]
+                    window.draw_rectangles(arr)
+                    j += 1
+                k += 1
+            
+            # if L[i] < R[j]:
+            #     arr[start+k] = L[i]
+            #     window.draw_rectangles(arr)
+            #     i += 1
+            # else:
+            #     arr[start+k] = R[j]
+            #     window.draw_rectangles(arr)
+            #     j += 1
+            # k += 1
 
         while i < len(L):
             arr[start+k] = L[i]
@@ -204,15 +260,24 @@ class Algorithm:
 
     #insertion sort
     def insertion_sort(self, arr, window, order):
+        if order == None:
+            return
 
         for i in range(1, len(arr)):
             key = arr[i]
             j = i - 1
               
-            while j >= 0 and key < arr[j]:
-                arr[j + 1] = arr[j]
-                j = j - 1
-                window.draw_rectangles(arr)
+            if order == "Ascending Order":
+                while j >= 0 and key < arr[j]:
+                    arr[j + 1] = arr[j]
+                    j = j - 1
+                    window.draw_rectangles(arr)
+
+            if order == "Descending Order":
+                while j >= 0 and key > arr[j]:
+                    arr[j + 1] = arr[j]
+                    j = j - 1
+                    window.draw_rectangles(arr)
             
             #move key after element that is bigger than
             arr[j + 1] = key
@@ -220,23 +285,34 @@ class Algorithm:
 
     #heap sort
     def heapify(self, arr, n, i, window, order):
-      largest = i
-      l = 2 * i + 1
-      r = 2 * i + 2
-  
-      if l < n and arr[i] < arr[l]:
-          largest = l
-  
-      if r < n and arr[largest] < arr[r]:
-          largest = r
-  
-      if largest != i:
-          arr[i], arr[largest] = arr[largest], arr[i]
-          window.draw_rectangles(arr)
-          self.heapify(arr, n, largest, window, order)
+        largest = i
+        l = 2 * i + 1
+        r = 2 * i + 2
+    
+        if order == "Ascending Order":
+            if l < n and arr[i] < arr[l]:
+                largest = l
+        
+            if r < n and arr[largest] < arr[r]:
+                largest = r
+
+        elif order == "Descending Order":
+            if l < n and arr[i] > arr[l]:
+                largest = l
+        
+            if r < n and arr[largest] > arr[r]:
+                largest = r
+    
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            window.draw_rectangles(arr)
+            self.heapify(arr, n, largest, window, order)
 
     def heap_sort(self, arr, window, order):
-        #build max 
+        if order == None:
+            return
+        
+        #build heap 
         for i in range(len(arr)//2, -1, -1):
             self.heapify(arr, len(arr), i, window, order)
 
@@ -290,6 +366,16 @@ def main():
                     arr = algorithm.randomise_list(arr)
                     window.draw_rectangles(arr)
 
+                #a - ascending order
+                if event.key == pygame.K_a:
+                    order = "Ascending Order"
+                    window.draw_textbox(order, sort)
+                
+                #d - descending order
+                if event.key == pygame.K_d:
+                    order = "Descending Order"
+                    window.draw_textbox(order, sort)
+                    
                 #b - bubble sort
                 if event.key == pygame.K_b:
                     sort = "Bubble Sort"
