@@ -22,9 +22,10 @@ class CreateWindow:
         self.window.fill(self.window_background)
         pygame.display.set_caption("Sorting Algorithm Visualisation")
 
+
     #takes the current state of the array as an input and draws the rectangles that represent the ints in the array
-    def draw_rectangles(self, arr):
-        SHADES_OF_RED = [[0,114,187], [0,119,190], [0,127,191] ]
+    def draw_rectangles(self, arr, green, red):
+        SHADES_OF_BLUE = [[0,114,187], [0,119,190], [0,127,191] ]
         RED = 255, 0, 100
         ###################
         PASTEL_RED = 255, 105, 97
@@ -33,6 +34,7 @@ class CreateWindow:
         temp_width = 0.8 * self.window.get_width()
         temp_height = 0.75 * self.window.get_height()
         pygame.draw.rect(self.window, PASTEL_RED, (temp_x, temp_y, temp_width, temp_height))
+        #time.sleep(0.012)
         ###################
 
         # calculate the width of one rectangle
@@ -40,7 +42,12 @@ class CreateWindow:
         unit_height = math.floor(temp_height / max(arr))
         
         for i in range(len(arr)):
-            COLOUR = SHADES_OF_RED[i % 3] 
+            if i == green:
+                COLOUR = 0, 255, 0
+            elif i == red:
+                COLOUR = 255, 0, 0
+            else:
+                COLOUR = SHADES_OF_BLUE[i % 3] 
             rectangle_height = unit_height * arr[i]
             y = math.floor(self.window.get_height()*0.95 - rectangle_height)
             x = math.floor(self.window.get_width() - 0.9*self.window.get_width() + i*rectangle_width)
@@ -60,14 +67,14 @@ class CreateWindow:
         
         #the text that contains the information/commands
         pygame.font.init()
-        textbox_info_x = self.window.get_width() * 0.06
+        textbox_info_x = self.window.get_width() * 0.08
         textbox_info_y = self.window.get_height() * 0.08
         textbox_info_width = self.window.get_width() * 0.09
         textbox_info_height= self.window.get_height() * 0.12
         textbox_info_rect = pygame.Rect(textbox_info_x, textbox_info_y, textbox_info_width, textbox_info_height)
         text_info_colour = (0, 0, 0)  # Black
         textbox_font = pygame.font.Font(None, round(self.window.get_width() / 55.556))
-        text_info = "A - Ascending / D - Descending / R - Randomise / S - Stop / B - Bubble Sort / Q - Quick Sort / M - Merge Sort / I - Insertion Sort / H - Heap Sort"
+        text_info = "A - Ascending / D - Descending / R - Randomise / B - Bubble Sort / Q - Quick Sort / M - Merge Sort / I - Insertion Sort / H - Heap Sort"
 
         text_surface = textbox_font.render(text_info, True, text_info_colour)
         text_rect = text_surface.get_rect(bottomleft=textbox_info_rect.center)
@@ -129,14 +136,14 @@ class Algorithm:
                         swap = True
                         arr[j], arr[j+1] = arr[j+1], arr[j]
                         #print(arr)
-                        window.draw_rectangles(arr)
+                        window.draw_rectangles(arr, j+1, j)
 
                 elif order == "Descending Order":
                     if arr[j] < arr[j+1]:
                         swap = True
                         arr[j], arr[j+1] = arr[j+1], arr[j]
                         #print(arr)
-                        window.draw_rectangles(arr)
+                        window.draw_rectangles(arr, j, j+1)
 
                 else:
                     return
@@ -144,6 +151,7 @@ class Algorithm:
                 
 
             if swap == False:
+                window.draw_rectangles(arr, 500, 500)
                 break
 
     #quick sort
@@ -159,25 +167,25 @@ class Algorithm:
             if order == "Ascending Order":
                 if arr[j] <= pivot:
                     i = i + 1
-                    window.draw_rectangles(arr)
-
+                    window.draw_rectangles(arr, i, j)
+                    
                     (arr[i], arr[j]) = (arr[j], arr[i])
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, i, j)
             
 
             elif order == "Descending Order":
                 if arr[j] >= pivot:
                     i = i + 1
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, i, j)
 
                     (arr[i], arr[j]) = (arr[j], arr[i])
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, i, j)
 
             else:
                 return
 
         (arr[i + 1], arr[high]) = (arr[high], arr[i + 1])
-        window.draw_rectangles(arr)
+        window.draw_rectangles(arr, 500, 500)
 
         return i + 1
 
@@ -215,22 +223,22 @@ class Algorithm:
             if order == "Ascending Order":
                 if L[i] < R[j]:
                     arr[start+k] = L[i]
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, start+k, i)
                     i += 1
                 else:
                     arr[start+k] = R[j]
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, start+k, j)
                     j += 1
                 k += 1
 
             if order == "Descending Order":
                 if L[i] > R[j]:
                     arr[start+k] = L[i]
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, start+k, i)
                     i += 1
                 else:
                     arr[start+k] = R[j]
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, start+k, j)
                     j += 1
                 k += 1
             
@@ -246,17 +254,17 @@ class Algorithm:
 
         while i < len(L):
             arr[start+k] = L[i]
-            window.draw_rectangles(arr)
+            window.draw_rectangles(arr, start+k, i)
             i += 1
             k += 1
 
         while j < len(R):
             arr[start+k] = R[j]
-            window.draw_rectangles(arr)
+            window.draw_rectangles(arr, start+k, j)
             j += 1
             k += 1
 
-        window.draw_rectangles(arr)
+        window.draw_rectangles(arr, 500, 500)
 
     #insertion sort
     def insertion_sort(self, arr, window, order):
@@ -271,17 +279,17 @@ class Algorithm:
                 while j >= 0 and key < arr[j]:
                     arr[j + 1] = arr[j]
                     j = j - 1
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, j+1, key)
 
             if order == "Descending Order":
                 while j >= 0 and key > arr[j]:
                     arr[j + 1] = arr[j]
                     j = j - 1
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, j+1, key)
             
             #move key after element that is bigger than
             arr[j + 1] = key
-            window.draw_rectangles(arr)
+            window.draw_rectangles(arr, 500, 500)
 
     #heap sort
     def heapify(self, arr, n, i, window, order):
@@ -305,7 +313,7 @@ class Algorithm:
     
         if largest != i:
             arr[i], arr[largest] = arr[largest], arr[i]
-            window.draw_rectangles(arr)
+            window.draw_rectangles(arr, largest, i)
             self.heapify(arr, n, largest, window, order)
 
     def heap_sort(self, arr, window, order):
@@ -318,7 +326,7 @@ class Algorithm:
 
         for i in range(len(arr)-1, 0, -1):
             arr[i], arr[0] = arr[0], arr[i]
-            window.draw_rectangles(arr)
+            window.draw_rectangles(arr, 500, 500)
 
             #heapify root 
             self.heapify(arr, i, 0, window, order)
@@ -326,7 +334,7 @@ class Algorithm:
 
 #main class (driver)
 def main():
-    print ("Hellow World")
+    #print ("Hellow World")
 
     min = 1     #min value of the array
     max = 50    #max value of the array
@@ -351,10 +359,10 @@ def main():
 
     # arr = algorithm.randomise_list(arr)
     window.draw_textbox(order, sort)
-    window.draw_rectangles(arr)
+    window.draw_rectangles(arr, 500, 500)
 
     while running:
-        pygame.time.Clock().tick(30)
+        pygame.time.Clock().tick(10)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -364,7 +372,7 @@ def main():
                 #r - randomise the list
                 if event.key == pygame.K_r:
                     arr = algorithm.randomise_list(arr)
-                    window.draw_rectangles(arr)
+                    window.draw_rectangles(arr, 500, 500)
 
                 #a - ascending order
                 if event.key == pygame.K_a:
